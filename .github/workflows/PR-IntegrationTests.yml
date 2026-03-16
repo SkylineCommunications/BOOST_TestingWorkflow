@@ -1,0 +1,51 @@
+name: QAOps
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  run-qaops:
+    if: >
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/trigger-qaops') &&
+      (
+        github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'
+      )
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PR info
+        uses: actions/github-script@v8
+        id: pr
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            return pr.data.head.sha;
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.pr.outputs.result }}
+
+      - name: Install QAOps .NET Tool
+        run: dotnet tool install -g Skyline.DataMiner.QAOps
+      
+      - name: Build Package
+        run: dotnet build --configuration Release
+
+      - name: Trigger QAOps Run
+        env:
+          QAOPS_TOKEN: ${{ secrets.QAOPS_TOKEN }}
+        run: |
+          dataminer-qaops test-run --tags "PR Run" -t 01K49Z0ZBJB1NFP4EMJD4Q5T02 -c 01K3K9RSGVCSVC8GGCE8RSYYA4 -san qaopsstaging --token ${{ secrets.QAOPS_TOKEN }} --test-packages ./GitHubNuGetQaOpsTestPackage/bin/Release/net48/DataMinerBuild/GitHubNuGetQaOpsTestPackage.1.0.0.dmtest  
