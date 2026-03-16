@@ -22,18 +22,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create check run
-        uses: actions/github-script@v8
-        with:
-          script: |
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: "QAOps",
-              head_sha: "${{ steps.pr.outputs.sha }}",
-              status: "in_progress"
-            });
-
       - name: Get PR info
         uses: actions/github-script@v8
         id: pr
@@ -46,6 +34,18 @@ jobs:
             });
             core.setOutput('sha', pr.data.head.sha);
 
+      - name: Create check run
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "QAOps",
+              head_sha: "${{ steps.pr.outputs.sha }}",
+              status: "in_progress"
+            });
+            
       - uses: actions/checkout@v6
         with:
           ref: ${{ steps.pr.outputs.sha }}
