@@ -22,6 +22,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Create check run
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "QAOps",
+              head_sha: "${{ steps.pr.outputs.sha }}",
+              status: "in_progress"
+            });
+
       - name: Get PR info
         uses: actions/github-script@v8
         id: pr
@@ -49,3 +61,18 @@ jobs:
           QAOPS_TOKEN: ${{ secrets.QAOPS_TOKEN }}
         run: |
           dataminer-qaops test-run-and-wait --tags "PR Run" -t 01K49Z0ZBJB1NFP4EMJD4Q5T02 -c 01K3K9RSGVCSVC8GGCE8RSYYA4 -san saqaopsstaging --token "${{ secrets.QAOPS_TOKEN }}" --test-packages ./GitHubNuGetQaOpsTestPackage/bin/Release/net48/DataMinerBuild/GitHubNuGetQaOpsTestPackage.1.0.0.dmtest  
+
+      - name: Complete check run
+        if: always()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "QAOps",
+              head_sha: "${{ steps.pr.outputs.sha }}",
+              status: "completed",
+              conclusion: "${{ job.status }}"
+            });
+
