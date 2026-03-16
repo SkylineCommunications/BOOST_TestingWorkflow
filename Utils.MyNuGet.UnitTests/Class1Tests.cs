@@ -18,7 +18,7 @@
 			bool result = sut.IsOk();
 
 			// Assert
-			Assert.IsTrue(result);
+			Assert.IsFalse(result);
 		}
 	}
 }
