@@ -32,11 +32,11 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.issue.number
             });
-            return pr.data.head.sha;
+            core.setOutput('sha', pr.data.head.sha);
 
       - uses: actions/checkout@v6
         with:
-          ref: ${{ steps.pr.outputs.result }}
+          ref: ${{ steps.pr.outputs.sha }}
 
       - name: Install QAOps .NET Tool
         run: dotnet tool install -g Skyline.DataMiner.QAOps
