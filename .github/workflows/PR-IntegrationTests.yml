@@ -23,6 +23,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get PR info
+        uses: actions/github-script@v8
+        id: pr
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            core.setOutput('sha', pr.data.head.sha);
+
       - name: Create check run
         uses: actions/github-script@v8
         with:
@@ -31,13 +43,13 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               name: "QAOps",
-              head_sha: "${{ github.event.issue.pull_request.head.sha }}",
+              head_sha: "${{ steps.pr.outputs.sha }}",
               status: "in_progress"
             });
 
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.issue.pull_request.head.sha }}
+          ref: ${{ steps.pr.outputs.sha }}
 
       - name: Install QAOps .NET Tool
         run: dotnet tool install -g Skyline.DataMiner.QAOps
@@ -60,7 +72,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               name: "QAOps",
-              head_sha: "${{ github.event.issue.pull_request.head.sha }}",
+              head_sha: "${{ steps.pr.outputs.sha }}",
               status: "completed",
               conclusion: "${{ job.status }}"
             });
