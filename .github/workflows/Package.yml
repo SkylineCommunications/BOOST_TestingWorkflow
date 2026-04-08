@@ -1,4 +1,4 @@
-name: Package Workflow
+name: Master Workflow
 
 on:
   push:
@@ -13,7 +13,7 @@ on:
 jobs:
 
   CI:
-    uses: SkylineCommunications/_ReusableWorkflows/.github/workflows/DataMiner App Packages Master Workflow.yml@main
+    uses: SkylineCommunications/_ReusableWorkflows/.github/workflows/Master Workflow.yml@MasterWorkflow
     with:
-      configuration: Release
-      sonarCloudProjectName: ${{ vars.SONAR_NAME }}
+      sonarcloud-project-name: ${{ vars.SONAR_NAME }}
+      solution-filter-name: "packageOnly.slnf"
