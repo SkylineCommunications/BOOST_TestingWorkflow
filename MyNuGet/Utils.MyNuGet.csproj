@@ -34,4 +34,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+<Target Name="Test">
+    <Message Importance="high" Text="MSBuildNodeCount: $(MSBuildNodeCount)"/>
+  </Target>
 </Project>
