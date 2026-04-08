@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "GitHubNuGetQaOpsTestPackage.slnx",
+    "projects": [
+      "MyNuGet\\Utils.MyNuGet.csproj",
+      "Utils.MyNuGet.UnitTests\\Utils.MyNuGet.UnitTests.csproj"
+    ]
+  }
+}
